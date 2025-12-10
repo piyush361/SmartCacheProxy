@@ -1,6 +1,6 @@
 # Smart Cache Proxy
 
-**Smart Cache Proxy (SWP)** is a caching proxy server designed to efficiently manage requests and improve performance by storing and serving frequently accessed data.
+**Smart Cache Proxy (SCP)** is a caching proxy server designed to efficiently manage requests and improve performance by storing and serving frequently accessed data.
 
 ---
 
