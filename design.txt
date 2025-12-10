@@ -1,5 +1,81 @@
-Extra Features to be added after cloning:
+Project Design Document
 
-a. Persistent upstream Connection pool.
-b. Pluggable Eviction policies - Done
-c. Monitoring the Metrics - Done
+Overview
+--------
+This project implements a multi-threaded HTTP proxy server with caching, pluggable eviction policies, logging, and connection pooling. 
+It listens for client connections, handles HTTP requests, caches responses, and forwards requests to a remote server if necessary.
+
+Components
+----------
+
+1. Socket Listener
+   - Purpose: Accept incoming client connections.
+   - Details:
+     - Opens a TCP socket on a configurable port.
+     - Uses accept() to receive connections.
+     - Spawns a dedicated thread per client for concurrent request handling.
+
+2. Client Handler Threads
+   - Purpose: Process HTTP requests from connected clients.
+   - Responsibilities:
+     - Receive HTTP requests from clients.
+     - Check the cache for a stored response.
+     - Return response on cache hit.
+     - Forward request to remote server on cache miss and store the response in cache.
+   - Concurrency: Each client connection runs in its own thread.
+
+3. Cache
+   - Purpose: Store responses for previously requested HTTP resources to reduce latency.
+   - Features:
+     - Pluggable eviction policies: LRU (Least Recently Used), LFU (Least Frequently Used)
+     - Thread-safe access for concurrent client threads.
+     - Tracks hits and misses for logging.
+
+4. Logger Thread
+   - Purpose: Monitor cache statistics and log events.
+   - Responsibilities:
+     - Record cache hits and cache misses.
+     - Periodically write statistics to a log file.
+     - Runs in a separate thread to avoid blocking client processing.
+
+5. Connection Pool
+   - Purpose: Maintain persistent client connections efficiently.
+   - Implementation:
+     - Uses a pool data structure to track active connections.
+     - Managed with epoll() for scalable event-driven monitoring.
+     - Reduces overhead of repeatedly opening and closing connections.
+
+Architecture Diagram (Textual)
+------------------------------
+             +------------------+
+             |   Client(s)      |
+             +--------+---------+
+                      |
+                      v
+             +--------+---------+
+             | Socket Listener  |
+             +--------+---------+
+                      |
+         +------------+------------+
+         |                         |
+         v                         v
++----------------+           +----------------+
+| Client Handler | ...       | Client Handler |
++----------------+           +----------------+
+         |
+         v
+  +----------------+
+  |      Cache     |
+  +----------------+
+         |
+         v
+  +----------------+
+  | Remote Server  |
+  +----------------+
+
+Logger Thread (monitors cache hits/misses)
+Connection Pool (manages persistent client connections via epoll)
+
+
+
+
