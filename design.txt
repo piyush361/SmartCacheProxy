@@ -1,0 +1,5 @@
+Extra Features to be added after cloning:
+
+a. Persistent upstream Connection pool.
+b. Pluggable Eviction policies - Done
+c. Monitoring the Metrics - Done
